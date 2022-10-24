@@ -1,0 +1,139 @@
+---
+title: "SV-Lab11"
+output: html_document
+date: "2022-10-24"
+---
+
+```{r}
+library(ggplot2)
+getwd()
+```
+
+```{r}
+#setwd("C:/Users/Supatach/Downloads")
+```
+Q1a
+```{r}
+computers <- read.csv("Computers.csv")
+str(computers)
+```
+Q1b
+The higher speed+hd+ram, the price increases.
+```{r}
+ggplot(computers, mapping = aes(x=speed+hd+ram, y=price)) +
+  geom_point()
+
+```
+Q1c
+```{r}
+ggplot(computers, mapping = aes(x=speed+hd+ram, y=price)) +
+  geom_point(alpha = 0.5) +
+  scale_x_continuous(trans="log")
+```
+Q1d
+yes. The regression line shows that price becomes higher with higher speed, hard disk and memory.
+```{r}
+ggplot(computers, mapping = aes(x=speed+hd+ram, y=price)) +
+  geom_point(alpha = 0.5) +
+  scale_x_continuous(trans="log") +
+  geom_smooth(method = lm)
+```
+
+Q1e
+Computers with C drive generally have more speed, HD and RAM, while generally not being more expensive
+```{r}
+ggplot(computers, mapping = aes(x=speed+hd+ram, y=price, color = cd)) +
+  geom_point(alpha = 0.5) +
+  scale_x_continuous(trans="log")
+```
+Q1f
+Computers with bigger screen size are generally more expensive.
+```{r}
+ggplot(computers, mapping = aes(x=speed+hd+ram, y=price, color = screen)) +
+  geom_point(alpha = 0.5) +
+  scale_x_continuous(trans="log") +
+  geom_smooth(method = lm)
+```
+
+Q2a
+400 observations and 11 variables.
+```{r}
+pigeon <- read.csv('https://raw.githubusercontent.com/joanby/python-ml-course/master/datasets/pigeon-race/pigeon-racing.csv')
+str(pigeon)
+```
+Q2b
+The higher the position, the less speed the pigeon has.
+```{r}
+ggplot(pigeon, mapping = aes(x = Pos, y = Speed)) +
+  geom_point(alpha = 0.5)
+```
+Q2c
+No particular sex is faster than the other.
+```{r}
+ggplot(pigeon, mapping = aes(x = Pos, y = Speed, color = Sex)) +
+  geom_point(alpha = 0.5)
+```
+Q3
+```{r}
+sat <- read.csv('http://www.randomservices.org/random/data/SATbyState.txt', sep = '\t')
+str(sat)
+```
+Q3a
+the higher the Math score, the higher the verbal score.
+```{r}
+ggplot(sat, mapping = aes(x = Verbal, y = Math)) +
+  geom_point()
+```
+Q3b 
+Yes. there is an outlier at around (440, 535). Reasons could be that there could be an error when keying in the values or that the state has many non-native english-speakers.
+
+Q3c
+The participation rate of states with low scores in Math and Verbal tests is higher than that participation rate of states with high scores in Math and verbal tests.
+```{r}
+ggplot(sat, mapping = aes(x = Verbal, y = Math, size = Rate)) +
+  geom_point()
+```
+
+Q4.
+```{r}
+sat2 <- read.csv('http://www.randomservices.org/random/data/SATbyYear.txt', sep = '\t')
+str(sat2)
+```
+Q4a
+The average verbal score decreases over the year until the year 1980 which then the average score platues.
+```{r}
+ggplot(sat2, mapping = aes(x = Year, y = AVerbal)) +
+  geom_point()
+```
+Q4b
+The female verbal score follows the trend of average verbal scores due to the size of each point following the trend of the scatter plot.
+```{r}
+ggplot(sat2, mapping = aes(x = Year, y = AVerbal, size = FVerbal)) +
+  geom_point()
+```
+Q4b
+The male verbal score also follows the trend of average verbal scores due to the size of each point following the trend of the scatter plot.
+```{r}
+ggplot(sat2, mapping = aes(x = Year, y = AVerbal, size = MVerbal)) +
+  geom_point()
+```
+
+Q4c.
+The average math score decreases rapidly from ~516 in 1965 to ~491 in 1980, which then increases back up from 1980 to ~514 in 2000
+```{r}
+ggplot(sat2, mapping = aes(x = Year, y = AMath)) +
+  geom_point()
+```
+
+Q4d
+The female math scores seem to reflect the trend as the score decreases until 1980, then increases back up, but generally scoring lower than the trend at every point in time.
+```{r}
+ggplot(sat2, mapping = aes(x = Year, y = AMath, size = FMath)) +
+  geom_point()
+```
+Q4d
+The Male math scores seem to reflect the trend, but scores much higher than the general trend at every point in time.
+```{r}
+ggplot(sat2, mapping = aes(x = Year, y = AMath, size = MMath)) +
+  geom_point()
+```

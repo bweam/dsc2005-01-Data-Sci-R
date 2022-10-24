@@ -1,0 +1,129 @@
+---
+title: "SV-Lab10"
+output: html_document
+date: "2022-10-17"
+---
+
+```{r}
+#install.packages('ggplot2')
+library(ggplot2)
+```
+```{r}
+#install.packages("ISLR")
+library(ISLR)
+```
+Q1.
+```{r}
+data("Carseats")
+str(Carseats)
+ggplot(Carseats, aes(x = Price, y = Sales)) +
+  geom_point()
+```
+1b.
+```{r}
+ggplot(Carseats, aes(x = Price, y = Sales)) +
+  geom_point() +
+  scale_y_continuous(trans = 'sqrt')
+```
+
+1c.
+```{r}
+ggplot(Carseats, aes(x = Price, y = Sales)) +
+  geom_point() +
+  scale_y_continuous(trans = 'sqrt') +
+  ylab('Sales in thousands')
+```
+
+1d.
+```{r}
+ggplot(Carseats, aes(x = Price, y = Sales)) +
+  geom_point() +
+  scale_y_continuous(trans = 'sqrt') +
+  ylab('Sales in thousands') +
+  geom_smooth(method = 'lm', se = F, col='Red')
+```
+
+1e.No clear pattern can be observed
+```{r}
+ggplot(Carseats, mapping = aes(x = Price, y = Sales, color = as.factor(Urban))) +
+  geom_point() +
+  scale_y_continuous(trans = 'sqrt') +
+  ylab('Sales in thousands')
+```
+
+1f. No clear pattern
+```{r}
+ggplot(Carseats, mapping = aes(x = Price, y = Sales, color = as.factor(US), shape = as.factor(US))) +
+  geom_point() +
+  scale_y_continuous(trans = 'sqrt') +
+  ylab('Sales in thousands')
+```
+
+1g. 'Good' ShelveLoc tend to have higher sales than 'Medium' ShelveLoc, while 'Medium' ShelveLoc tend to have higher sales than 'Bad' ShelveLoc
+```{r}
+ggplot(Carseats, mapping = aes(x = Price, y = Sales, color = ShelveLoc, shape = ShelveLoc)) +
+  geom_point() +
+  scale_y_continuous(trans = 'sqrt') +
+  ylab('Sales in thousands')
+```
+
+Q2.
+```{r}
+data("iris")
+str(iris)
+ggplot(iris, mapping = aes(x = Petal.Width, y = Sepal.Length)) +
+  geom_point()
+```
+
+2b. Setosas have smallest petal width and sepal length, while versicolor tend to have bigger petal width and sepal length in comparison.
+Virginicas have the biggest petal width and sepal length when compared to both the other species.
+```{r}
+ggplot(iris, mapping = aes(x = Petal.Width, y = Sepal.Length, color = Species)) +
+  geom_point()
+```
+
+2c. Petal Length increases with increasing sepal length and increasing petal width; hence, Setosas have the smallest petal length, then versicolor, then virginica with the biggest sepal length.
+```{r}
+ggplot(iris, mapping = aes(x = Petal.Width, y = Sepal.Length, color = Species, size = as.factor(Petal.Length))) +
+  geom_point()
+```
+
+Q3.
+```{r}
+data("College")
+str(College)
+ggplot(College, mapping = aes(x = Apps, y = Enroll)) +
+  geom_point()
+```
+
+3b. Yes. There are more enrollment with more applicants
+```{r}
+ggplot(College, mapping = aes(x = Apps, y = Enroll)) +
+  geom_point() +
+  scale_x_continuous(trans = 'log') +
+  scale_y_continuous(trans = 'log')
+```
+
+3c.Public Colleges generally have more applicants than private colleges
+```{r}
+ggplot(College, mapping = aes(x = Apps, y = Enroll, color = Private)) +
+  geom_point() +
+  scale_x_continuous(trans = 'log') +
+  scale_y_continuous(trans = 'log')
+```
+
+3d. No
+```{r}
+ggplot(College, mapping = aes(x = Outstate, y = Room.Board, color = Books)) +
+  geom_point() +
+  scale_x_continuous(trans = 'log') +
+  scale_y_continuous(trans = 'log')
+```
+
+3e Private colleges generally have higher tuiton costs and room and boarding costs than Public colleges.
+```{r}
+ggplot(College, mapping = aes(x = Outstate, y = Room.Board, color = Private)) +
+  geom_point() +
+  scale_x_continuous(trans = 'log') +
+  scale_y_continuous(trans = 'log')
+```

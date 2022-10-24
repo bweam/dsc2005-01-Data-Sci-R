@@ -1,0 +1,46 @@
+---
+title: "Untitled"
+output: html_document
+date: "2022-09-28"
+---
+q1 Histograms
+a)
+```{r}
+library(MASS)
+hist(geyser$waiting)
+```
+b)
+```{r}
+hist(geyser$waiting, xlab = 'Waiting Time', ylab = 'Freq', main = 'Distribution of Geyser Waiting Time', col = 'burlywood1')
+```
+c) 5
+d)
+```{r}
+hist(geyser$waiting, xlab = 'Waiting Time', ylab = 'Freq', main = 'Distribution of Geyser Waiting Time', col = 'burlywood1', breaks = 40:110)
+```
+bin width: 1
+```{r}
+hist(geyser$waiting, xlab = 'Waiting Time', ylab = 'Freq', main = 'Distribution of Geyser Waiting Time', col = 'burlywood1', breaks = seq(40,110,2))
+```
+e)
+```{r}
+hist(geyser$waiting, xlab = 'Waiting Time', ylab = 'Freq', main = 'Distribution of Geyser Waiting Time', col = 'burlywood1', breaks = seq(40,110,2), xaxt='n', yaxt='n')
+axis(1, at=seq(40,110,by=4), cex.axis=0.5)
+axis(2, at=seq(0,30,2), cex.axis=1)
+```
+xaxt='n' and yaxt ='n' removes the scale completely which are then defined by axis(1,) and axis(2,) for x and y axis respectively. The at=seq() inside axis() defines the points at which tick-marks are drawn, while cex.axis defines the axis label font size.
+
+
+q2 Scatter Plots
+```{r}
+with(painters, plot(Colour, Drawing, main='Painters\' Colours versus Drawing', xlab = 'Number of Colours Used', ylab='Drawings Done', col.main="deeppink", col="darkmagenta", pch=16, abline(h=mean(painters$Drawing), v=median(painters$Colour), col=c("cornflowerblue","gold"), lty=c(2,1)), xaxt='n', yaxt='n'))
+axis(1, at=seq(0,18,2), cex.axis=0.6)
+axis(2, at=seq(6,18), cex.axis=0.6, las=1)
+```
+
+
+q3 Line Plots
+```{r}
+plot(DDT, type="o", col=c("coral","limegreen"), lwd=2, pch=15, cex=0.7, main="DDT in Kale", xlab="Frequency", col.main="darkgreen")
+```
+
