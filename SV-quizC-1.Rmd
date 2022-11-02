@@ -1,0 +1,138 @@
+---
+title: "Quiz"
+output: html_document
+---
+
+NAME:
+STUDENT ID:
+
+
+IMPORTANT:
+1. Please save this file as <your_initials>-quizX.Rmd, where X is your quiz, e.g. HJW-quizA.Rmd
+2. Save your file frequently (Ctrl-S) to avoid loss of data in case RStudio or your computer crashes.
+3. Fill out the code required in the code chunks provided. Try not to use any symbols or characters that are not within the Roman alphabet.
+4. Answer English questions in the space below the question.
+5. If you prefer, you may submit an R file instead with the same naming convention given in 1.
+
+
+Installing and loading ISLR package. Run the code cell below.
+```{r}
+install.packages('ISLR')
+library(ISLR)
+```
+
+
+Load the dataset of your quiz.
+```{r}
+data(Credit) # enter dataset name in the brackets
+```
+
+
+1) How many observations and variables does this dataset contain? (3)
+```{r}
+str(Credit)
+```
+ANSWER required below.
+Observation: 400
+Variables: 12
+
+
+
+2) Choose any column with data type "factor" from your dataset. What are the levels and how many elements are contained in each level? (2)
+```{r}
+table(Credit$Gender)
+#there are 2 levels: "Male", "Female" each having 193 and 207 elements, respectively.
+```
+
+
+
+3) Create a subset of this dataset as specified in the question sheet. 
+You MUST use the subset() function to slice your data and save it to df. (5)
+```{r}
+df <- subset(Credit, Age <= 65 & Student == "No", select = -c(Ethnicity, Balance))
+```
+
+
+
+4) Working with df, filter some data according to the constraints specified in the question sheet. You may want to use with() and subset() for this. (4)
+```{r}
+min(df$Age[df$Rating > 500])
+```
+
+
+
+5) Using df, find the column with the highest standard deviation. The standard deviation can be calculated by inserting the column vector values into the function sd(). You MUST iterate over all numeric columns, keeping track of the largest standard deviation so far and the column index. Print out the highest standard deviation and the column which it belongs to. (Hint: use for and if-else constructs). You should also remove NA values first. (12)
+
+```{r}
+highest_sd <- -Inf
+for(i in 1:ncol(df)) {
+  if(is.numeric(df[[i]])) {
+    if(sd(df[[i]][!is.na(df[[i]])]) > highest_sd) {
+      highest_sd <- sd(df[[i]][!is.na(df[[i]])])
+      highest_sd_col <- names(df)[i]
+    }
+  }
+}
+cat("column \"", highest_sd_col, "\" has the highest standard deviation of:", highest_sd)
+```
+
+
+
+6) Taking the column with the highest standard deviation, divide it into three class levels. Determine the suitable cutoff values for "low", "average", and "high" or "small", "medium" and "large" by looking at its summary(). Take the lower cutoff value to be between the 1st Quartile and Median and the higher cutoff value to be between the Median and 3rd Quartile. Pick anything less than or equal to 0 as the lower cutoff if most values are 0. Create a new column in df with a suitable name and assign the values using the ifelse construct or if-statement-else construct. All three class levels should be present in this column. (10)
+
+```{r}
+summary(df$Limit)
+df$Limit_Level <- ifelse(df$Limit < 3500, "low", "average")
+df$Limit_Level <- ifelse(df$Limit > 5300, "high", df$Limit_Level)
+table(df$Limit_Level)
+```
+
+
+
+7) Convert this new column into an ordered factor with the three levels that you have created in Q6 with the appropriate ordering. If you make a mistake, rerun the code for Q6 and start again. (4)
+
+```{r}
+f <- factor(df$Limit_Level)
+df$Limit_Level <- ordered(f, c("low", "average", "high"))
+str(df)
+```
+
+
+
+8) General question. Store your student ID digit by digit in a vector called id. For example, if your student ID is 2022012345, then id is the vector c(2,0,2,2,0,1,2,3,4,5). Using a loop and suitable constructs, print the sum of each pair of adjacent two digits in id. Once a pair of digits is used for a sum, move on to the next pair. For student ID 2022012345, your code should print the following: 
+
+Pair 1 : 2 
+Pair 2 : 4 
+Pair 3 : 1 
+Pair 4 : 5
+Pair 5 : 9 
+
+You MUST iterate through the vector and should NOT use the sum() function. Your code should work on any numeric vector. If id’s length is less than 10, print an error message “ID too short”. If id is longer than 10, you should only print the sums of the first 5 pairs of numbers. (10)
+
+```{r}
+id <- as.integer(strsplit("2022319225", "")[[1]])
+if(!length(id) < 10) {
+  for(i in seq(1,10,2)) {
+    cat("Pair", (i+1)/2, ":", id[i] + id[i+1], "\n")
+  }
+} else {
+    print("ID too short")
+}
+
+#alternatively
+prev <- 0
+id2 <- c(2,0,2,2,3,1,9,2,2,5)
+if(!length(id2) < 10) {
+  for(j in 1:10) {
+    if(j%%2 == 0) {
+      cat("Pair", prev, ":", id2[j] + prev, "\n")
+      prev <- 0
+    } else {
+      prev <- id2[j]
+    }
+  }
+} else {
+  print("ID too short")
+}
+```
+

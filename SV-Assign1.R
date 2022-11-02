@@ -29,7 +29,7 @@ m4 <- rbind(m2, c(seq(2,-4,by=-2)))
 m3[1,] * m4[,2] # 12 992 0
 
 #q4
-survey_factor <- factor(c("Agree","Strongly Agree","Disagree","Disagree","Neutral","Agree"))
+survey_factor <- factor(c("Agree","Strongly Agree","Disagree","Disagree","Strongly Disagree","Agree"))
 
 survey_factor <- ordered(survey_factor, c("Strongly Disagree","Disagree","Neutral","Agree","Strongly Agree"))
 
@@ -37,14 +37,14 @@ survey_factor[7] <- "Neutral"
 
 levels(survey_factor) <-c("SD", "D", "N", "A", "SA")
 
-length(survey_factor[survey_factor >= "N"]) # 5
+length(survey_factor[survey_factor >= "N"]) # 4
 
 #q5
-s <- sample(c(seq(0.1,1.4,0.1)), 100, replace = T)/sqrt(2) # assumed typo in question 4.1 -> 1.4
+s <- sample(c(seq(0.1,1.4,length.out=5)), 100, replace = T)/sqrt(2) # assumed typo in question 4.1 -> 1.4
 
-length(s[s > 0.5]) # 52
+length(s[s > 0.5]) # 57
 
 s <- sample(c(seq(0.1,1.4,length.out=5)), 100, replace = T, prob=c(0.1,0.2,0.1,0.7,0.1))
 
-length(s[s > 0.5]) # 70. This is because the probability is changed to bias towards 1.075 (0.7) which when divided by sqrt(2) will be greater than 0.5
+length(s[s > 0.5]) # 79. This is because the probability is changed to bias towards 1.075 (0.7) which when divided by sqrt(2) will be greater than 0.5
 #resulting in more generated sample that are above 0.5

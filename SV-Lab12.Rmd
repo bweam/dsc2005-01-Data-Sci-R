@@ -1,0 +1,86 @@
+---
+title: "SV-Lab12"
+output: html_document
+date: "2022-10-31"
+---
+
+Q1a
+```{r}
+print(Sys.Date())
+print(Sys.time())
+print(date())
+```
+Q1b
+```{r}
+format(Sys.time(), "%H %j")
+```
+Q1c
+```{r}
+loc <- as.Date("Oct 15th, 1916", "%b %dth, %Y")
+print(format(loc, "%a")) #Grandfather was born on Sunday
+
+print(format(as.Date("Nov 5, 1972", "%b %d, %Y"), "%a")) #My mother was born on Sunday
+```
+Q1d
+```{r}
+d1 <- as.Date("Sep 2, 1945", "%b %d, %Y")
+d2 <- as.Date("1953/07/27", "%Y/%m/%d")
+d3 <- as.Date("20th July 1969", "%dth %B %Y")
+d4 <- as.Date("11 March '89", "%d %B '%y")
+```
+
+Q1e
+```{r}
+cat(as.numeric(format(Sys.Date(), "%j")) - as.numeric(format(as.Date("August 29th, 2022", "%B %dth, %Y"), "%j")), "days")
+```
+Q2a
+```{r}
+# install.packages("lubridate")
+```
+
+```{r}
+library(lubridate)
+print(today())
+print(now())
+```
+Q2b b)
+```{r}
+print(hour(now()))
+print(day(now()))
+```
+Q2b c)
+```{r}
+print(wday(mdy("Oct 15th 1916"))) #sunday
+print(wday(mdy("Nov 5 1972"))) #sunday
+```
+Q2b d)
+```{r}
+D1 <- mdy("Sep 2, 1945")
+D2 <- ymd("1953/07/27")
+D3 <- dmy("20th July 1969")
+D4 <- dmy("11 March '89")
+```
+
+Q2b e)
+```{r}
+cat((mdy("August 29th, 2022") %--% now())/days(1), "days")
+```
+
+Q2c
+```{r}
+bd <- dmy_hms("30/11/2001 13:00:00")
+```
+Q2c i
+```{r}
+print(leap_year(bd))
+```
+Q2c ii
+```{r}
+print(week(bd))
+```
+Q2c iii
+```{r}
+print(round_date(bd, unit = "month"))
+#I would have been slightly younger
+```
+

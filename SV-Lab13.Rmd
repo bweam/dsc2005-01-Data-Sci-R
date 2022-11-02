@@ -1,0 +1,92 @@
+---
+title: "Lab13-Functions"
+output: html_document
+date: "2022-11-02"
+---
+
+Q1
+```{r}
+toCelsius <- function(F){
+  return ((F-32)*5/9)
+}
+cel <- c(50, 77, 86, 98.6, 32, -40)
+fah <- sapply(cel, toCelsius)
+```
+
+Q2
+```{r}
+toFahrenheit <- function(C) {
+  return (C*9/5+32)
+}
+sapply(fah, toFahrenheit) == cel
+```
+Q3
+```{r}
+div13 <- function(n) {
+  return (n%%13 == 0)
+}
+div13(26)
+```
+
+Q4
+```{r}
+object <- c(1:500)
+object[sapply(object, div13)]
+```
+
+Q5
+```{r}
+someFn <- function(x) {
+  if (x<13) {
+    return (x**2 + 2*x + 3)
+  } else if (div13(x)) {
+    return (x+3)
+  }
+  return (x**2 + 4*x - 7)
+}
+temp <- c(0, 10, 20, 26)
+sapply(temp, someFn)
+```
+
+PART B
+Q6
+```{r}
+data("airquality")
+str(airquality)
+
+print(apply(airquality, 2, mean)) #2 means column. 1 means row
+summary(airquality)
+#not all columns show numeric mean (Ozone and Solar.R shows NA)
+```
+Q7
+```{r}
+print(apply(airquality, 2, mean, na.rm = TRUE))
+```
+
+Q8
+```{r}
+print(apply(airquality, 2, range, na.rm = TRUE))
+```
+
+Q9
+```{r}
+data <- na.omit(airquality)
+
+standardise <- function(x) {
+  return ((x-sum(x))/sd(x))
+}
+new_df <- apply(data, 2, standardise)
+```
+
+Q10
+```{r}
+print(apply(new_df, 2, sd))
+print(apply(data, 2, sd))
+#they are different because new_df is a standardised data
+```
+
+Q11
+```{r}
+tapply(data$Temp, data$Month, mean)
+#July has the highest average temperature
+```
