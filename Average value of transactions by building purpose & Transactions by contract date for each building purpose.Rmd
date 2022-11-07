@@ -1,0 +1,199 @@
+---
+title: "R_project"
+output: html_document
+date: '2022-11-01'
+---
+```{r}
+# locale("ko")
+# df <- read.csv("C:/Users/supat/Downloads/(translated) Real Estate Transactions in Seoul.csv", locale = locale(date_names = "ko", encoding = 'UTF-8'), encoding = 'UTF-8')
+
+library(readr)
+library("readxl")
+
+df <- read_excel("C:/Users/supat/Downloads/(translated) Real Estate Transactions in Seoul.xlsx")
+df
+```
+```{r}
+library(tidyverse)
+```
+
+data의 unique 값들 확인
+(Check unique values of data)
+```{r}
+colSums(is.na(df))
+```
+
+```{r}
+library(data.table)
+# df <- fread("C:/Users/supat/Downloads/(translated) Real Estate Transactions in Seoul(2).csv")
+# df
+unique(df$Gu) # 25개 구 (25 distinctions)
+unique(df$Dong) # 420개 동 (420 dong)
+sort(unique(df$floor)) # 층은 -3층부터 73층까지 존재 NA값도 있다. (floor exists from -3 to 73, and there are also NA values.)
+sort(unique(df$`Construction Year`)) # 1900년부터 2022년까지 건설년도 존재.0은 이상치인듯.(Construction years exist from 1900 to 2022. 0 seems to be an outlier.)
+
+unique(df$`Building Purpose`) # 건설목적 아파트, 연립다세대, 단독다가구, 오피스텔 네 개
+unique(df$Transaction) # 중개, 직거래, ""는 na 처리하는게 좋아보임(There are four types of construction purpose: apartment, multi-family, single-family, and officetel.)
+
+# $Cancelation에 값이 있는 경우 거래가 취소된 것. 이 경우의 비율을 찾아보는 것도 좋을듯.(If Cancelation has a value, the transaction was canceled. It would be good to find the ratio in this case.)
+df$`Cencellation Date`[1]
+sum(is.na(df$`Cencellation Date`))
+
+df$`Cencellation Date`[is.na(df$`Cencellation Date`)] <- 0 # na값으로 검색하니 안나옴.
+
+df[df$`Cencellation Date` == 0]
+```
+구별 거래 횟수 시각화
+(Visualization of number of real estate transactions by district)
+```{r}
+df %>% 
+  group_by(Gu) %>% 
+  summarise(count = n()) %>% 
+  ggplot(aes(x = Gu, y = count, fill = Gu, alpha = 0.6))+
+  geom_col()+
+  theme_bw()+
+  theme(legend.position = 'none')+
+  labs(x='Gu',y='Transaction count',title='Number of real estate transactions by district')+
+  geom_text(aes(x= Gu, y= count, label = paste(round(100 * count/sum(count),2),'%')), position = position_dodge(width = 1),vjust = -0.5, size = 2,check_overlap = T) +
+  theme(axis.text.x = element_text(angle= 30, vjust = 0.5,size =6))
+```
+
+년도별 거래 횟수 시각화
+(Visualization of number of real estate transactions by year)
+
+```{r}
+library(lubridate)
+time <- df %>% mutate(ymd = ymd(`Contract Date`)) %>%
+  mutate(ym = paste(year(ymd),month(ymd))) %>% 
+  group_by(ym) %>% summarise(count = n())
+time$ym <- ym(time$ym) # 년월일을 년월로 통합.
+
+time %>% ggplot(aes(ym,count))+
+  geom_line()+
+  geom_point()+
+  labs(x='Time',y='Transaction count',title ='Number of real estate transactions by year')+
+  theme(plot.title = element_text(size=20,face='bold'))+
+  theme_bw()+
+  geom_point(shape = 21,size=3,aes(x = ym, y=count, colour= count, fill = count))
+
+```
+
+거래 유형별 비교. (거래 유형별은 시간에 따라 어떻게 되는지 비교해보는 것이 유의미할듯.)
+(Visualization of number of real estate transactions by transaction type)
+
+```{r}
+df %>% filter(Transaction!='') %>% 
+  group_by(Transaction) %>% 
+  summarise(count = n()) %>% 
+  ggplot(aes(x = Transaction, y = count, fill = Transaction, alpha = 0.6))+
+  geom_col()+
+  theme_bw()+
+  theme(legend.position = 'none')+
+  labs(x='Building purpose',y='Transaction count',title='Number of real estate transactions by transaction type')+
+  geom_text(aes(x= Transaction, y= count, label = paste(round(100 * count/sum(count),2),'%')), position = position_dodge(width = 1),vjust = -0.5, size = 3.5,check_overlap = T) +
+  theme(axis.text.x = element_text( vjust = 0.5,size =10))
+```
+건물 용도 별 거래횟수 시각화
+(Visualization of number of real estate transactions by building purpose)
+
+```{r}
+df %>% 
+  group_by(`Building Purpose`) %>% 
+  summarise(count = n()) %>% 
+  ggplot(aes(x = `Building Purpose`, y = count, fill = `Building Purpose`, alpha = 0.6))+
+  geom_col()+
+  theme_bw()+
+  theme(legend.position = 'none')+
+  labs(x='Building purpose',y='Transaction count',title='Number of real estate transactions by building purpose')+
+  geom_text(aes(x= `Building Purpose`, y= count, label = paste(round(100 * count/sum(count),2),'%')), position = position_dodge(width = 1),vjust = -0.5, size = 3.5,check_overlap = T) +
+  theme(axis.text.x = element_text( vjust = 0.5,size =10))
+```
+
+계약일 별 그래프(추후 시계열 분석을 위한 기초 과정.)
+Graph by contract date (basic course for future time series analysis.)
+
+```{r}
+library(lubridate)
+library(itsmr)
+colnames(df$`Contract Date`)
+ts_df <- df %>% mutate(ymd = ymd(`Contract Date`)) %>% 
+  group_by(ymd) %>% summarise(count = n())
+  
+ts_df <- ts(ts_df$count, start = c(2018,01,20), end = c(2022,10,27), frequency = 365)  
+
+
+plot.ts(ts_df)
+```
+
+
+Visualization of real estate by building purpose to transaction price.
+```{r}
+building_purpose_agg <- df %>%
+  group_by(`Building Purpose`) %>%
+  summarise(`Mean Price (KRW)` =  mean(`Price (1000won)`*1000))
+
+ggplot(building_purpose_agg, aes(x=`Building Purpose`, y=`Mean Price (KRW)`, fill=`Building Purpose`, alpha=0.6)) +
+  geom_col() +
+  theme_bw()+
+  theme(legend.position = 'none')+
+  labs(x='Building purpose',y='Mean Price (KRW)',title='Average value of transactions by building purpose')
+```
+
+
+Visualization of transaction price by contract date
+```{r, fig.width = 12, fig.height = 5.5}
+library(lubridate)
+time2 <- df %>% mutate(ymd = ymd(`Contract Date`)) %>%
+  group_by(ymd, `Building Purpose` = as.factor(`Building Purpose`)) %>% 
+  summarise(`Mean Price (KRW)` =  mean(`Price (1000won)`*1000))
+              
+time2 %>% ggplot(aes(x = ymd,y = `Mean Price (KRW)`, color = `Building Purpose`))+
+  geom_line()+
+  facet_grid(~ `Building Purpose`) +
+  labs(x='Time',y='Average Price',title ='Transaction price by contract date')+
+  theme(plot.title = element_text(size=20,face='bold'))+
+  theme_bw() +
+  scale_y_continuous(trans = 'log')
+
+
+```
+
+Visualization of number transaction to average highest floors of each region
+```{r, fig.width = 16, fig.height = 8}
+max_floor <- df %>% group_by(`Building Name`) %>% slice(which.max(floor))
+
+max_floor %>% group_by(`Gu`) %>% summarize(`Average Floors` = round(mean(floor), 2)) %>%
+  # mutate(`Ordered Gu` = fct_reorder(Gu, desc(`Average Floors`))) %>% #order graph in descending order
+  ggplot(aes(x=`Gu`, y=`Average Floors`, fill=`Gu`, alpha = 0.6)) +
+  geom_col() +
+  theme_bw()+
+  theme(legend.position = 'none') +
+  scale_fill_hue(l=40) +
+  geom_text(aes(x= `Gu`, y= `Average Floors`, label = `Average Floors`), position = position_dodge(width = 1),vjust = -0.5, size = 4,check_overlap = T) +
+  labs(x='Gu',y='Average floors',title='Number of average floors of real estate each region')+
+  theme(axis.text.x = element_text(angle= 30, vjust = 0.5,size =8))
+
+df %>% 
+  group_by(Gu) %>% 
+  summarise(Price = mean(`Price (1000won)`) * 1000) %>% 
+  # mutate(`Ordered Gu` = fct_reorder(Gu, desc(Price))) %>%
+  ggplot(aes(x = `Gu`, y = Price, fill = Gu, alpha = 0.6))+
+  geom_col()+
+  theme_bw()+
+  theme(legend.position = 'none')+
+  labs(x='Gu',y='Price',title='Average price of real estate transactions by district')+
+  scale_fill_hue(l=40) +
+  geom_text(aes(x= `Gu`, y= Price, label = paste(round(Price/1000000,0), 'm')), position = position_dodge(width = 1),vjust = -0.5, size = 4,check_overlap = T) +
+  theme(axis.text.x = element_text(angle= 30, vjust = 0.5,size =8)) 
+```
+
+```{r, fig.width = 18, fig.height = 8}
+max_floor %>% 
+  group_by(Gu) %>% count(`Building Purpose`) %>%
+  mutate(`Gu` = fct_reorder(Gu, desc(n))) %>%
+  ggplot(aes(x = Gu,y = n, fill = `Building Purpose`, alpha = 0.6))+
+  geom_bar(position = 'dodge', stat = 'identity') +
+  geom_text(aes(x= `Gu`, y= n, label = n), position = position_dodge(width = 1),vjust = -0.5, size = 3,check_overlap = T) +
+  theme(axis.text.x = element_text(angle= 30, vjust = 0.5,size =8))  +
+  labs(x='Gu',y='Number of buildings',title='Number of buildings by building purpose in each region')
+```
