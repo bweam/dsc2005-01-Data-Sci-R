@@ -1,0 +1,117 @@
+---
+title: "SV-Lab14-dplyr"
+output: html_document
+date: "2022-11-07"
+---
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+data("diamonds")
+str(diamonds)
+```
+
+
+Q1a
+```{r}
+View(filter(diamonds, clarity == "I1"))
+```
+
+Q1b
+```{r}
+View(filter(diamonds, (10000 <= price & price <= 12000)))
+```
+
+Q1c
+```{r}
+print(count(filter(diamonds, carat > 4))) #5
+select(filter(diamonds, carat > 4), carat, cut, color, clarity)
+```
+
+Q1d
+```{r}
+max_cut_clarity <- select(filter(diamonds, cut == max(cut) | clarity == max(clarity)), carat, cut, color, clarity)
+max_cut_clarity
+```
+
+Q1e
+```{r}
+tail(arrange(max_cut_clarity, carat), 3) #3.01 3.22 3.50
+```
+Q1f
+```{r}
+diamonds <- mutate(diamonds, price.per.weight = price/carat)
+```
+
+Q1g
+```{r}
+View(arrange(diamonds, price.per.weight))
+View(arrange(diamonds, desc(depth)))
+```
+
+Q1h
+```{r}
+aggr_color <- group_by(diamonds, color)
+summarize(aggr_color, count = n()) #counts the number of diamonds of each color
+summarize(aggr_color, 'Average Price' = mean(price))
+summarize(aggr_color, 'Average Weight' = mean(carat))
+```
+
+Q2a
+```{r}
+library(magrittr)
+diamonds %>% filter(clarity == "I1")
+```
+
+Q2b
+```{r}
+diamonds %>% filter(10000 <= price & price <= 12000)
+```
+
+Q2c 
+```{r}
+diamonds %>% filter(carat > 4) %>%
+  select(carat, cut, color, clarity) #5
+```
+
+Q2d
+```{r}
+max_cut_clarity2 <- diamonds %>% filter(cut == max(cut) | clarity == max(clarity)) %>%
+  select(carat, cut, color, clarity)
+max_cut_clarity2
+```
+
+Q2e
+```{r}
+max_cut_clarity2 %>% arrange(carat) %>% head(3) #0.2 0.2 0.2
+```
+
+Q2f
+```{r}
+diamonds2 <- diamonds %>% mutate(price.per.weight = price/carat)
+```
+
+Q2g
+```{r}
+diamonds2 %>% arrange(price.per.weight) %>% View()
+diamonds2 %>% arrange(desc(depth)) %>% View()
+```
+
+Q2h
+```{r}
+diamonds2 %>% group_by(cut) %>%
+  summarize(count = n())
+
+diamonds2 %>% group_by(cut) %>%
+  summarize('Average Carat' = mean(carat))
+
+diamonds2 %>% group_by(cut) %>%
+  summarize('Max Carat' = max(carat))
+
+diamonds2 %>% group_by(cut) %>%
+  summarize(count = n()) %>%
+  filter(count >= 5000) %>%
+  arrange(desc(cut))
+```
+
