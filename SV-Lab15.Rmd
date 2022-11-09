@@ -1,0 +1,119 @@
+---
+title: "SV-Lab15-ggplot-ex"
+output: html_document
+date: "2022-11-09"
+---
+
+```{r}
+library(ggplot2)
+data(mpg)
+str(mpg)
+```
+
+Q1a
+```{r}
+ggplot(mpg, aes(class)) +
+  geom_bar()
+```
+suv and compact has the two highest frequencies.
+
+q1b
+```{r}
+ggplot(mpg, aes(class, weights=displ)) +
+  geom_bar()
+```
+suv and pickup are the two classes with highest frequencies.
+
+q1c
+```{r}
+ggplot(mpg, aes(class, fill=drv)) +
+  geom_bar()
+```
+
+2seater, subcompact and suv have rear wheel drive, r.
+the most common car wheel drive are the '4' with compact, midsize, pickup, subcompact and suv having them.
+
+q2a
+```{r}
+library(MASS)
+data("mammals")
+str(mammals)
+
+ggplot(mammals, mapping = aes(x = body, y = brain)) +
+  geom_point()
+```
+yes, many points are concentrated near the (0,0) corner.
+
+q2b
+```{r}
+ggplot(mammals, mapping = aes(x = body, y = brain)) +
+  geom_point() +
+  scale_x_continuous(trans = 'log') +
+  scale_y_continuous(trans = 'log')
+```
+
+q2c
+```{r}
+ggplot(mammals, mapping = aes(x = body, y = brain)) +
+  geom_point() +
+  scale_x_continuous(trans = 'log') +
+  scale_y_continuous(trans = 'log') +
+  xlab("Body weight in log10(Kg)") +
+  ylab("Brain weight in log10(Kg)")
+```
+
+q2d
+```{r}
+ggplot(mammals, mapping = aes(x = body, y = brain)) +
+  geom_point() +
+  scale_x_continuous(trans = 'log') +
+  scale_y_continuous(trans = 'log') +
+  xlab("Body weight in log10(Kg)") +
+  ylab("Brain weight in log10(Kg)") +
+  ggtitle("Body vs Brain Weight in 62 Land Mammals")
+```
+
+q2e
+```{r}
+ggplot(mammals, mapping = aes(x = body, y = brain)) +
+  geom_point() +
+  scale_x_continuous(trans = 'log') +
+  scale_y_continuous(trans = 'log') +
+  xlab("Body weight in log10(Kg)") +
+  ylab("Brain weight in log10(Kg)") +
+  ggtitle("Body vs Brain Weight in 62 Land Mammals") +
+  geom_smooth(color = 'red', method = 'lm', se = FALSE)
+```
+
+q2f
+```{r}
+ggplot(mammals, mapping = aes(x = body, y = brain)) +
+  geom_point(alpha = 0.6) +
+  scale_x_continuous(trans = 'log') +
+  scale_y_continuous(trans = 'log') +
+  xlab("Body weight in log10(Kg)") +
+  ylab("Brain weight in log10(Kg)") +
+  ggtitle("Body vs Brain Weight in 62 Land Mammals") +
+  geom_smooth(color = 'red', method = 'lm', se = FALSE)
+```
+
+q2g
+```{r}
+ggplot(mammals, mapping = aes(x = body, y = brain)) +
+  geom_point(alpha = 0.6) +
+  scale_x_continuous(trans = 'log') +
+  scale_y_continuous(trans = 'log') +
+  xlab("Body weight in log10(Kg)") +
+  ylab("Brain weight in log10(Kg)") +
+  ggtitle("Body vs Brain Weight in 62 Land Mammals") +
+  geom_smooth(color = 'red', method = 'lm', se = FALSE) +
+  theme_minimal()
+```
+
+theme_gray()
+
+q3
+```{r}
+ggsave("C:/Users/supat/dsc2005-01-Data-Sci-R/mammals.jpg", width=7, height=5)
+```
+
