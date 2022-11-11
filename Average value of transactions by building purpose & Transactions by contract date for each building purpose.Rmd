@@ -197,3 +197,42 @@ max_floor %>%
   theme(axis.text.x = element_text(angle= 30, vjust = 0.5,size =8))  +
   labs(x='Gu',y='Number of buildings',title='Number of buildings by building purpose in each region')
 ```
+
+```{r, fig.width = 16, fig.height = 8}
+df %>% 
+  group_by(floor) %>% 
+  summarise(Price = mean(`Price (1000won)`) * 1000) %>% 
+  ggplot(aes(x = `floor`, y = Price, fill = Price, alpha = 0.4))+
+  geom_col(na.rm=TRUE)+
+  xlim(-5,68.5)+
+  ylim(0, 2000000000) +
+  theme_bw()+
+  scale_fill_gradient(trans = "sqrt") +
+  labs(x='Floor',y='Price',title='Average price of real estate transactions by floor') +
+  geom_text(aes(x= `floor`, y= Price, label = paste(round(Price/1000000,0), 'm')), position = position_dodge(width = 1), angle = 90, hjust = -0.2, size = 4,check_overlap = T,na.rm=TRUE) +
+  theme(axis.text.x = element_text(angle= 30, vjust = 0.5,size =8)) 
+```
+```{r, fig.width = 16, fig.height = 8}
+building_area_agg <- df %>% 
+  mutate(B_Area = case_when(
+    `Building Area(㎡)` <= 500 ~ "0-500",
+    `Building Area(㎡)` > 500 & `Building Area(㎡)` <= 1000 ~ "500-1000",
+    `Building Area(㎡)` > 1000 & `Building Area(㎡)` <= 1500 ~ "1000-1500",
+    `Building Area(㎡)` > 1500 & `Building Area(㎡)` <= 2000 ~ "1500-2000",
+    `Building Area(㎡)` > 2000 & `Building Area(㎡)` <= 2500 ~ "2000-2500",
+    `Building Area(㎡)` > 2500 & `Building Area(㎡)` <= 3000 ~ "2500-3000",
+    `Building Area(㎡)` > 3000 & `Building Area(㎡)` <= 3500 ~ "3000-3500",
+    `Building Area(㎡)` > 3500 ~ "3500+",
+  ))
+
+building_area_agg$B_Area <- factor(building_area_agg$B_Area, levels=c("0-500", "500-1000", "1000-1500", "1500-2000", "2000-2500", "2500-3000","3000-3500","3500+"), ordered = TRUE)
+building_area_agg %>%
+  group_by(B_Area) %>% 
+  summarise(Price = mean(`Price (1000won)`) * 1000) %>% 
+  ggplot(aes(x = B_Area, y = Price, fill = B_Area ,alpha = 0.6))+
+  geom_col()+
+  theme_bw()+
+  labs(x='Building Area(㎡)',y='Price',title='Average price of real estate transactions by building area') +
+  geom_text(aes(x= B_Area, y= Price, label = paste(round(Price/1000000,0), 'm')), position = position_dodge(width = 1),vjust = -0.5, size = 4,check_overlap = T) +
+  theme(axis.text.x = element_text(angle= 30, vjust = 0.5,size =8))
+```
