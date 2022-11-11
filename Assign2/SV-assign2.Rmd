@@ -1,0 +1,134 @@
+---
+title: "Assignment2-Submission"
+output: html_document
+---
+# Name: Supatach Vanichayangkuranont
+# ID: 2022319225
+
+# 0 Ensure ggplot2 is loaded
+```{r}
+library(ggplot2)
+```
+
+
+1a) Read in the file diabetes_readmit.csv using read.csv(). Save it into a data frame called df. [1]
+```{r}
+# Enter your code below
+df <- read.csv("diabetes_readmit.csv")
+```
+
+
+1b) Inspect df. Some variables have "?" values, e.g. the first rows of the weight column. 
+# What do you think "?" values mean for this dataset? [1]
+it means the value is unknown, or was not input by the person inputting data, so it is left as "?".
+
+
+1c) Reload diabetes_readmit.csv into df using read.csv() as before and add an additional parameter na.strings ="?". [1]
+```{r}
+df <- read.csv("diabetes_readmit.csv", na.strings = "?")
+```
+
+
+# 1d) What is the effect of adding the parameter na.strings="?" when reading in the dataset? [2]
+it converts any cell where there is a "?" to NA.
+
+
+2a) Find columns with the most NAs (denoted by is.na()). Loop through all the columns to find the total number of NA values in each column. Sort the number of NAs in decreasing order. Print the column name with the number of NAs starting from the column with the most number of NAs . You can use any method you want to achieve this but the code must be provided. [5]
+# Bonus: Instead of just returning the number of NAs in the column, return the number of NAs as a proportion (or percentage) of the overall data
+```{r}
+proportion <- function(x) {
+  return (sum(is.na(x))/nrow(df))
+}
+na_count <- sapply(df, proportion)
+na <- data.frame(na_count)
+na <- na[order(-na_count), ,drop = FALSE]
+na
+```
+
+# What are the two columns with the most number of NA’s?
+weight & medical_specialty
+
+
+
+2b) Remove the two columns with the highest number of NAs from df, i.e. df should now NOT contain these two columns. [4]
+```{r}
+df <- subset(df, select = -c(weight,medical_specialty))
+```
+
+# 2c) If you had a choice, would you remove any other column(s) (max 2) in order to reduce the data size without losing vital information? If so, which one(s) would you choose and why? If you choose not to remove any columns, explain why. Note: you do NOT have to actually remove these columns. [3]
+
+No, as every column can be used to plot to do some visualizations or analysis on medical topics. The medical topics and analytical studies can vary using different columns; thus the remaining columns can be considered 'vital information' depending on context.
+
+I. We want to see which age group has the highest readmissions.
+
+3a) Convert the variable readmitted (the number of times the patient was readmitted) to an ordered factor with levels "NO", "<30" and ">30". [3]
+```{r}
+df$readmitted <- as.factor(df$readmitted)
+```
+
+
+3b) Plot a bar of the age and fill the bars with readmitted, i.e. the bars should be stacked according to the group count of readmission of all the age groups. [4]
+```{r}
+ggplot(df, mapping = aes(x = age, fill = readmitted, alpha = 0.6)) +
+  geom_bar()
+```
+
+
+# 3c) From your graph, which age group has the highest readmission count? [1]
+
+70-80 age group
+
+
+II. We want to understand if older patients have longer stays than younger patients. To do this, we will plot some graphs to see the underlying distributions and relationships between the variables
+
+3d) Plot a density plot of the time_in_hospital. Density plots are a variation of bar charts where the data is smoothed. Use geom_density(). [2]
+```{r}
+ggplot(df, mapping = aes(x=time_in_hospital)) +
+  geom_density()
+```
+
+
+3e) Now we want to plot the time_of_hospital and age, but since there are many age groups, we’ll make multiple density plots of time_in_hospital according to the different age groups. Add a facet_wrap() with the age as the variable to facet with. Fill the density plot with age. [4]
+```{r}
+ggplot(df, mapping = aes(x=time_in_hospital, fill = age)) +
+  geom_density() +
+  facet_wrap(~ age)
+```
+
+
+3f) Adding gender in. We also want to investigate the stay period of different genders. Keeping age as the variable to facet the density plot of the time_ in_hospital, change the fill to gender. [3]
+```{r}
+ggplot(df, mapping = aes(x=time_in_hospital, fill = gender)) +
+  geom_density() +
+  facet_wrap(~ age)
+```
+
+
+3g) Do you see some erroneous values in the gender category? We are going to redo the plot by removing these values by subsetting df to contain only valid gender values. WITHOUT modifying df or creating a new data frame, replot the graph using valid gender categories. [2]
+```{r}
+ggplot(data = subset(df, df$gender != 'Unknown/Invalid'), mapping = aes(x=time_in_hospital, fill = gender)) +
+  geom_density() +
+  facet_wrap(~ age)
+```
+
+
+3h) To see a slightly smoother visualisation, set alpha and adjust arguments to appropriate values within geom_density() Your plot should look similar to the one shown below with the appropriate labels (i.e. title with YOUR name, x, y and legend labels). The legend title can be changed by adding the layer scale_fill_discrete(). [6]
+```{r}
+ggplot(data = subset(df, df$gender != 'Unknown/Invalid'), mapping = aes(x=time_in_hospital, fill = gender)) +
+  geom_density(alpha = 0.3, adjust = 2) +
+  facet_wrap(~ age) +
+  scale_fill_discrete(name = "Gender") +
+  labs(x='Time Spent in Hospital',y='Density',title='Time Spend in Hospital by Age Group and Gender by Supatach Vanichayangkuranont') +
+  theme(plot.title = element_text(size = 12))
+  
+```
+
+3i) Save your plot as "<initials>-diabetes.jpg" (e.g. HJW-diabetes.jpg without having to specify any path so it will get saved in your working directory) and attach it with your submission. Provide the code that you used for saving the file.[1]
+```{r}
+ggsave('SV-diabetes.jpg')
+```
+
+
+# 3j) How would you interpret this graph? [2]
+
+Male and Female spend time in hospital similarly regardless of Age group and Gender with most spent time being around 2.5 minutes, except for age group [0-10) where female there are more female the spends time at around 2.5 mins in the hospital than men.
