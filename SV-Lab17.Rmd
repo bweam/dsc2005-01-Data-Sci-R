@@ -1,0 +1,144 @@
+---
+title: "SV-Lab17-linearmodeling"
+output: html_document
+date: "2022-11-16"
+---
+
+```{r}
+library(dplyr)
+library(gapminder)
+data('gapminder')
+str(gapminder)
+```
+q1
+```{r}
+gapminder %>%
+  filter(country %in% c('Canada','Mali')) %>%
+  group_by(country) %>%
+  summarize(meanGdp = mean(gdpPercap)) %>%
+  print() %>%
+  
+
+print(22410.7463 - 673.0931)
+```
+
+q2
+```{r}
+cdml <- gapminder %>%
+  select(gdpPercap, country) %>%
+  filter(country %in% c('Canada','Mali')) %>%
+  print()
+
+t.test(data = cdml, gdpPercap ~ country)
+
+#the difference is real. 95% CI: 16520.52 - 26954.78
+```
+q3
+```{r}
+krth <- gapminder %>%
+  select(pop, country) %>%
+  filter(country %in% c('Korea, Dem. Rep.','Thailand')) %>%
+  print()
+
+t.test(data = krth, pop ~ country)
+
+#there is a difference between korea's and thailand's population
+```
+
+B)
+q3
+```{r}
+library(ggplot2)
+gapminder %>% filter(gdpPercap < 50000) %>%
+  ggplot(mapping = aes(x = gdpPercap, y = lifeExp)) +
+  geom_point()
+```
+
+q4
+```{r}
+gapminder %>% filter(gdpPercap < 50000) %>%
+  ggplot(mapping = aes(x = gdpPercap, y = lifeExp, color = continent, alpha = 0.5, size = pop)) +
+  geom_point() + 
+  scale_colour_brewer(palette="Set1")
+```
+
+q5
+```{r}
+gapminder %>% filter(gdpPercap < 50000) %>%
+  ggplot(mapping = aes(x = gdpPercap, y = lifeExp, color = continent, alpha = 0.5, size = pop)) +
+  geom_point() + 
+  scale_colour_brewer(palette="Set1") + 
+  scale_x_continuous(trans = 'log') +
+  geom_smooth(formula = y ~ x , color = 'black', method = 'lm', se=FALSE)
+```
+
+q6
+```{r, fig.width = 18, fig.height = 8}
+gapminder %>% filter(gdpPercap < 50000) %>%
+  ggplot(mapping = aes(x = gdpPercap, y = lifeExp, color = year, alpha = 0.5, size = pop)) +
+  geom_point() + 
+  scale_x_continuous(trans = 'log') +
+  geom_smooth(color = 'black', method = 'lm', se = FALSE) + 
+  facet_wrap(~continent)
+```
+
+C)
+q7
+```{r}
+attach(gapminder)
+
+model <- lm(gdpPercap ~ lifeExp)
+
+detach(gapminder)
+
+summary(model)
+
+#p value = <2e-16 so the difference is significant.
+```
+
+q8
+```{r}
+attach(gapminder)
+
+model2 <- lm(gdpPercap ~ pop)
+
+detach(gapminder)
+
+summary(model2)
+
+#p value is 0.291 and as it is > 0.05, the difference is not significant.
+```
+
+q9
+```{r}
+model3 <- lm(gdpPercap ~ ., data = gapminder)
+
+summary(model3)
+```
+
+q10
+```{r}
+attributes(model)
+
+data.frame(model$coefficients, model$residuals)
+```
+
+q11
+```{r}
+data("mtcars")
+str(mtcars)
+```
+```{r}
+cars <- mtcars %>% filter(gear < 5)
+
+attach(cars)
+
+model4 <- lm(mpg ~ hp + wt + disp + qsec)
+
+detach(cars)
+
+summary(model4)
+
+#disp and qsec
+```
+

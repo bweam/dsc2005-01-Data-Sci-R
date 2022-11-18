@@ -7,12 +7,17 @@ date: '2022-11-01'
 # locale("ko")
 # df <- read.csv("C:/Users/supat/Downloads/(translated) Real Estate Transactions in Seoul.csv", locale = locale(date_names = "ko", encoding = 'UTF-8'), encoding = 'UTF-8')
 
-library(readr)
-library("readxl")
+# library(readr)
+# library("readxl")
+# 
+# df <- read_excel("data.xlsx")
+# df
 
-df <- read_excel("C:/Users/supat/Downloads/(translated) Real Estate Transactions in Seoul.xlsx")
-df
+df <- read.csv("final_data.csv", fileEncoding="cp949")
+colnames(df) <- c(" ","V1","Year","Gu Code", "Gu","Dong Code","Dong","지번구분", "지번구분명","본번","부번","Building Name","Contract Date","Price (10000won)", "Building Area", "Land Area","floor", "권리구분", "Cencellation Date", "Construction Year","Building Purpose","Transaction","Region of Real Estate Agency","Gwon","ym","month","base rate")
 ```
+
+
 ```{r}
 library(tidyverse)
 ```
@@ -74,7 +79,8 @@ time %>% ggplot(aes(ym,count))+
   labs(x='Time',y='Transaction count',title ='Number of real estate transactions by year')+
   theme(plot.title = element_text(size=20,face='bold'))+
   theme_bw()+
-  geom_point(shape = 21,size=3,aes(x = ym, y=count, colour= count, fill = count))
+  geom_point(shape = 21,size=3,aes(x = ym, y=count, colour= count, fill = count)) +
+  geom_smooth(color = 'red', se = FALSE)
 
 ```
 
@@ -130,7 +136,7 @@ Visualization of real estate by building purpose to transaction price.
 ```{r}
 building_purpose_agg <- df %>%
   group_by(`Building Purpose`) %>%
-  summarise(`Mean Price (KRW)` =  mean(`Price (1000won)`*1000))
+  summarise(`Mean Price (KRW)` =  mean(`Price (10000won)`*1000))
 
 ggplot(building_purpose_agg, aes(x=`Building Purpose`, y=`Mean Price (KRW)`, fill=`Building Purpose`, alpha=0.6)) +
   geom_col() +
@@ -141,21 +147,20 @@ ggplot(building_purpose_agg, aes(x=`Building Purpose`, y=`Mean Price (KRW)`, fil
 
 
 Visualization of transaction price by contract date
-```{r, fig.width = 12, fig.height = 5.5}
+```{r, fig.width = 12, fig.height = 6}
 library(lubridate)
 time2 <- df %>% mutate(ymd = ymd(`Contract Date`)) %>%
   group_by(ymd, `Building Purpose` = as.factor(`Building Purpose`)) %>% 
-  summarise(`Mean Price (KRW)` =  mean(`Price (1000won)`*1000))
+  mutate(`Mean Price (KRW)` =  mean(`Price (10000won)`*1000))
               
-time2 %>% ggplot(aes(x = ymd,y = `Mean Price (KRW)`, color = `Building Purpose`))+
+time2 %>% ggplot(aes(x = ymd,y = `Mean Price (KRW)`, color = `base rate`))+
   geom_line()+
   facet_grid(~ `Building Purpose`) +
   labs(x='Time',y='Average Price',title ='Transaction price by contract date')+
   theme(plot.title = element_text(size=20,face='bold'))+
   theme_bw() +
-  scale_y_continuous(trans = 'log')
-
-
+  scale_y_continuous(trans = 'log') +
+  geom_smooth(color = 'red', se = FALSE)
 ```
 
 Visualization of number transaction to average highest floors of each region
@@ -175,7 +180,7 @@ max_floor %>% group_by(`Gu`) %>% summarize(`Average Floors` = round(mean(floor),
 
 df %>% 
   group_by(Gu) %>% 
-  summarise(Price = mean(`Price (1000won)`) * 1000) %>% 
+  summarise(Price = mean(`Price (10000won)`) * 1000) %>% 
   # mutate(`Ordered Gu` = fct_reorder(Gu, desc(Price))) %>%
   ggplot(aes(x = `Gu`, y = Price, fill = Gu, alpha = 0.6))+
   geom_col()+
@@ -188,6 +193,8 @@ df %>%
 ```
 
 ```{r, fig.width = 18, fig.height = 8}
+library(forcats)
+
 max_floor %>% 
   group_by(Gu) %>% count(`Building Purpose`) %>%
   mutate(`Gu` = fct_reorder(Gu, desc(n))) %>%
@@ -201,7 +208,7 @@ max_floor %>%
 ```{r, fig.width = 16, fig.height = 8}
 df %>% 
   group_by(floor) %>% 
-  summarise(Price = mean(`Price (1000won)`) * 1000) %>% 
+  summarise(Price = mean(`Price (10000won)`) * 1000) %>% 
   ggplot(aes(x = `floor`, y = Price, fill = Price, alpha = 0.4))+
   geom_col(na.rm=TRUE)+
   xlim(-5,68.5)+
@@ -215,20 +222,20 @@ df %>%
 ```{r, fig.width = 16, fig.height = 8}
 building_area_agg <- df %>% 
   mutate(B_Area = case_when(
-    `Building Area(㎡)` <= 500 ~ "0-500",
-    `Building Area(㎡)` > 500 & `Building Area(㎡)` <= 1000 ~ "500-1000",
-    `Building Area(㎡)` > 1000 & `Building Area(㎡)` <= 1500 ~ "1000-1500",
-    `Building Area(㎡)` > 1500 & `Building Area(㎡)` <= 2000 ~ "1500-2000",
-    `Building Area(㎡)` > 2000 & `Building Area(㎡)` <= 2500 ~ "2000-2500",
-    `Building Area(㎡)` > 2500 & `Building Area(㎡)` <= 3000 ~ "2500-3000",
-    `Building Area(㎡)` > 3000 & `Building Area(㎡)` <= 3500 ~ "3000-3500",
-    `Building Area(㎡)` > 3500 ~ "3500+",
+    `Building Area` <= 500 ~ "0-500",
+    `Building Area` > 500 & `Building Area` <= 1000 ~ "500-1000",
+    `Building Area` > 1000 & `Building Area` <= 1500 ~ "1000-1500",
+    `Building Area` > 1500 & `Building Area` <= 2000 ~ "1500-2000",
+    `Building Area` > 2000 & `Building Area` <= 2500 ~ "2000-2500",
+    `Building Area` > 2500 & `Building Area` <= 3000 ~ "2500-3000",
+    `Building Area` > 3000 & `Building Area` <= 3500 ~ "3000-3500",
+    `Building Area` > 3500 ~ "3500+",
   ))
 
 building_area_agg$B_Area <- factor(building_area_agg$B_Area, levels=c("0-500", "500-1000", "1000-1500", "1500-2000", "2000-2500", "2500-3000","3000-3500","3500+"), ordered = TRUE)
 building_area_agg %>%
   group_by(B_Area) %>% 
-  summarise(Price = mean(`Price (1000won)`) * 1000) %>% 
+  summarise(Price = mean(`Price (10000won)`) * 1000) %>% 
   ggplot(aes(x = B_Area, y = Price, fill = B_Area ,alpha = 0.6))+
   geom_col()+
   theme_bw()+
@@ -236,3 +243,32 @@ building_area_agg %>%
   geom_text(aes(x= B_Area, y= Price, label = paste(round(Price/1000000,0), 'm')), position = position_dodge(width = 1),vjust = -0.5, size = 4,check_overlap = T) +
   theme(axis.text.x = element_text(angle= 30, vjust = 0.5,size =8))
 ```
+
+Base Rate graph
+```{r}
+df$ym <- ym(df$ym)
+```
+
+```{r, fig.width = 16, fig.height = 8}
+df %>% group_by(ym) %>% summarize(`base rate` = mean(`base rate`)) %>%
+  ggplot(aes(x = ym, y = `base rate`)) +
+  geom_point() +
+  geom_line() +
+  labs(x='time',y='base rate',title ='Base Rate by Time')+
+  theme(plot.title = element_text(size=20,face='bold'))+
+  theme_bw()+
+  geom_point(shape = 21,size=3,aes(x = ym, y=`base rate`, colour=`base rate`, fill = `base rate`))
+```
+
+
+```{r, fig.width = 16, fig.height = 8}
+df %>% group_by(ym) %>% summarize(`base rate` = mean(`base rate`)) %>%
+  ggplot(aes(x = ym, y = `base rate`)) +
+  geom_point() +
+  geom_line() +
+  labs(x='time',y='base rate',title ='Base Rate by Time')+
+  theme(plot.title = element_text(size=20,face='bold'))+
+  theme_bw()+
+  geom_point(shape = 21,size=3,aes(x = ym, y=`base rate`, colour=`base rate`, fill = `base rate`))
+```
+

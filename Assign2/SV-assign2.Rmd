@@ -63,7 +63,7 @@ I. We want to see which age group has the highest readmissions.
 
 3a) Convert the variable readmitted (the number of times the patient was readmitted) to an ordered factor with levels "NO", "<30" and ">30". [3]
 ```{r}
-df$readmitted <- as.factor(df$readmitted)
+df$readmitted <- ordered(df$readmitted, levels = c("NO", "<30", ">30"))
 ```
 
 

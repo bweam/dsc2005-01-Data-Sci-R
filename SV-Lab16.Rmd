@@ -1,0 +1,124 @@
+---
+title: "SV-Lab16-dplyr_cont"
+output: html_document
+date: "2022-11-14"
+---
+
+```{r}
+library(dplyr)
+library(magrittr)
+library(gapminder)
+```
+q1
+```{r}
+q1 <- c(1,2,3,3,2,1)
+min_rank(q1)
+dense_rank(q1)
+row_number(q1)
+```
+
+q2
+```{r}
+data("gapminder")
+str(gapminder)
+
+my_gap <- gapminder
+```
+
+q3
+```{r}
+my_gap %>% filter(country == "Korea, Rep.") %>% count() 
+
+# 12 rows
+```
+
+q4
+```{r}
+my_gap %>% group_by(continent) %>% summarize(count = n())
+```
+
+q5
+```{r}
+my_gap %>% select(country, lifeExp) %>% filter(min_rank(desc(lifeExp)) == 1 | min_rank(lifeExp) == 1) %>% arrange(lifeExp)
+```
+
+q6
+```{r}
+my_gap %>% 
+  select(year, country, lifeExp) %>% 
+  group_by(year) %>% 
+  filter(min_rank(desc(lifeExp)) == 1 | min_rank(lifeExp) == 1) %>% 
+  arrange(year, lifeExp)
+
+#Cambodia had the lowest life exp in 1977, while Iceland had the highest life exp in 1977.
+```
+
+q7
+```{r}
+my_gap %>% group_by(continent) %>% summarize(countries = n_distinct(country))
+```
+
+q8
+```{r}
+my_gap %>% filter(continent == "Africa") %>%
+  select(year, country, lifeExp) %>%
+  group_by(year) %>% 
+  filter(min_rank(lifeExp) == 1) %>% 
+  arrange(year, lifeExp)
+
+#Angola had the lowest life exp in 1987
+```
+
+q9
+```{r}
+my_gap %>% filter(continent == "Africa") %>%
+  select(year, country, lifeExp) %>%
+  group_by(year) %>% 
+  filter(min_rank(desc(lifeExp)) == 1 | min_rank(lifeExp) == 1) %>% 
+  arrange(year, lifeExp)
+```
+
+q10
+```{r}
+africa <- my_gap %>% filter(continent == "Africa") %>%
+  select(year, country, lifeExp) %>%
+  group_by(year)%>%
+  mutate(lifeRank = min_rank(lifeExp)) %>%
+  filter(year > 1960 & country %in% c("Gambia", "Sierra Leone", "Reunion", "Rwanda")) %>%
+  arrange(year, lifeRank)
+
+africa %>% filter(country == "Sierra Leone" & lifeRank == 1)
+#Sierra Leone was ranked '1' 5 times
+```
+
+q11
+```{r}
+my_gap %>% select(year, continent, country, lifeExp) %>%
+  group_by(country) %>%
+  mutate(exp_delta = lifeExp - lag(lifeExp)) %>%
+  filter(!is.na(exp_delta)) %>%
+  group_by(continent) %>%
+  mutate(worst_exp_delta = min(exp_delta)) %>%
+  filter(exp_delta == worst_exp_delta) %>%
+  select(continent, country, worst_exp_delta) %>%
+  arrange(worst_exp_delta)
+```
+
+q12
+```{r}
+data("country_codes")
+str(country_codes)
+```
+```{r}
+gapminder %>%
+  left_join(country_codes) %>%
+  select(country, continent) %>%
+  distinct()
+```
+
+q13
+```{r}
+inner_join(gapminder, country_codes)
+full_join(gapminder, country_codes)
+```
+
