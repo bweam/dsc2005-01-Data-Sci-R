@@ -178,11 +178,18 @@ max_floor %>% group_by(`Gu`) %>% summarize(`Average Floors` = round(mean(floor),
   labs(x='Gu',y='Average floors',title='Number of average floors of real estate each region')+
   theme(axis.text.x = element_text(angle= 30, vjust = 0.5,size =8))
 
-df %>% 
+dfGwon <- df %>% 
   group_by(Gu) %>% 
-  summarise(Price = mean(`Price (10000won)`) * 1000) %>% 
-  # mutate(`Ordered Gu` = fct_reorder(Gu, desc(Price))) %>%
-  ggplot(aes(x = `Gu`, y = Price, fill = Gu, alpha = 0.6))+
+  mutate(Price = mean(`Price (10000won)`) * 1000) %>% 
+  select(Gu, Gwon, Price) %>%
+  distinct(Gu, .keep_all=TRUE)
+
+dfGwon <- dfGwon[order(dfGwon$Gwon, dfGwon$Gu), ]
+
+dfGwon$Gu <- factor(dfGwon$Gu, levels = unique(dfGwon$Gu)) 
+
+dfGwon %>%
+  ggplot(aes(x = `Gu`, y = Price, fill = Gwon, alpha = 0.6))+
   geom_col()+
   theme_bw()+
   theme(legend.position = 'none')+
@@ -190,6 +197,13 @@ df %>%
   scale_fill_hue(l=40) +
   geom_text(aes(x= `Gu`, y= Price, label = paste(round(Price/1000000,0), 'm')), position = position_dodge(width = 1),vjust = -0.5, size = 4,check_overlap = T) +
   theme(axis.text.x = element_text(angle= 30, vjust = 0.5,size =8)) 
+```
+```{r}
+dfGwon <- df %>% 
+  group_by(Gu) %>% 
+  mutate(Price = mean(`Price (10000won)`) * 1000) %>% 
+  select(Gu, Gwon, Price) %>%
+  distinct(Gu, .keep_all=TRUE)
 ```
 
 ```{r, fig.width = 18, fig.height = 8}
@@ -222,26 +236,22 @@ df %>%
 ```{r, fig.width = 16, fig.height = 8}
 building_area_agg <- df %>% 
   mutate(B_Area = case_when(
-    `Building Area` <= 500 ~ "0-500",
-    `Building Area` > 500 & `Building Area` <= 1000 ~ "500-1000",
-    `Building Area` > 1000 & `Building Area` <= 1500 ~ "1000-1500",
-    `Building Area` > 1500 & `Building Area` <= 2000 ~ "1500-2000",
-    `Building Area` > 2000 & `Building Area` <= 2500 ~ "2000-2500",
-    `Building Area` > 2500 & `Building Area` <= 3000 ~ "2500-3000",
-    `Building Area` > 3000 & `Building Area` <= 3500 ~ "3000-3500",
-    `Building Area` > 3500 ~ "3500+",
+    `Building Area` <= 100 ~ "0-100",
+    `Building Area` > 100 & `Building Area` <= 200 ~ "100-200",
+    `Building Area` > 200 & `Building Area` <= 300 ~ "200-300",
+    `Building Area` > 300 ~ "300+"
   ))
 
-building_area_agg$B_Area <- factor(building_area_agg$B_Area, levels=c("0-500", "500-1000", "1000-1500", "1500-2000", "2000-2500", "2500-3000","3000-3500","3500+"), ordered = TRUE)
+building_area_agg$B_Area <- factor(building_area_agg$B_Area, levels=c("0-100", "100-200", "200-300", "300+"), ordered = TRUE)
 building_area_agg %>%
   group_by(B_Area) %>% 
-  summarise(Price = mean(`Price (10000won)`) * 1000) %>% 
+  summarise(Price = mean(`Price (10000won)`) * 100) %>% 
   ggplot(aes(x = B_Area, y = Price, fill = B_Area ,alpha = 0.6))+
   geom_col()+
   theme_bw()+
   labs(x='Building Area(㎡)',y='Price',title='Average price of real estate transactions by building area') +
-  geom_text(aes(x= B_Area, y= Price, label = paste(round(Price/1000000,0), 'm')), position = position_dodge(width = 1),vjust = -0.5, size = 4,check_overlap = T) +
-  theme(axis.text.x = element_text(angle= 30, vjust = 0.5,size =8))
+  geom_text(aes(x= B_Area, y= Price, label = paste(round(Price/1000000,1), 'm')), position = position_dodge(width = 1),vjust = -0.5, size = 4,check_overlap = T) +
+  theme(axis.text.x = element_text(vjust = 0.5,size =12))
 ```
 
 Base Rate graph
